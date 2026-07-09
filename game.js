@@ -456,6 +456,11 @@ ui.cheatInput.addEventListener('keydown', (ev) => {
 window.addEventListener('beforeunload', saveGame);
 window.addEventListener('resize', resizeCanvas);
 window.addEventListener('orientationchange', resizeCanvas);
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 ui.hireBtn.addEventListener('click', () => {
   if (state.money >= 100) {
     state.money -= 100;

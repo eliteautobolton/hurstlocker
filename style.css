@@ -173,41 +173,56 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .orientationOverlay h2 { margin-bottom: 8px; }
 .hidden { display: none !important; }
 @media (max-width: 900px) {
-  #app { padding: 8px; gap: 8px; }
+  html, body { overflow: hidden; }
+  #app { padding: 8px 8px 150px; gap: 8px; }
   .topbar {
     align-items: flex-start;
     flex-direction: column;
-    gap: 8px;
-  }
-  h1 { font-size: 22px; }
-  .stats span { padding: 6px 8px; font-size: 12px; }
-  main {
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 1fr) auto;
-  }
-  #gameWrap { min-height: 0; }
-  .panel {
-    padding: 8px;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 6px;
   }
-  .panel h2, .readout, .notes { display: none; }
+  h1 { font-size: 20px; }
+  .stats { gap: 6px; }
+  .stats span { padding: 6px 8px; font-size: 11px; }
+  main {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+    min-height: calc(100dvh - 150px);
+  }
+  #gameWrap {
+    height: calc(100dvh - 150px);
+    max-height: calc(100dvh - 150px);
+  }
+  .panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    padding: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 6px;
+    border-radius: 0;
+    background: rgba(20, 20, 20, 0.96);
+    border-top: 1px solid #3a3a3a;
+    max-height: 150px;
+    overflow-y: auto;
+  }
+  .panel h2,
+  .cheatBox,
+  .readout,
+  .notes {
+    display: none;
+  }
   .panel button {
     margin: 0;
-    padding: 8px 6px;
-    font-size: 11px;
-    min-height: 38px;
+    padding: 10px 8px;
+    font-size: 12px;
+    min-height: 40px;
   }
-  .cheatBox {
-    grid-column: 1 / -1;
-    margin-top: 0;
-  }
-  .cheatRow { flex-direction: column; }
-  .cheatRow button { width: 100%; }
   .installBanner {
-    flex-direction: column;
-    align-items: flex-start;
+    left: 8px;
+    right: 8px;
   }
 }
 @media (max-width: 900px) and (orientation: portrait) {
