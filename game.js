@@ -15,6 +15,8 @@ const ui = {
   playerUziBtn: document.getElementById('playerUziBtn'),
   defenderUziBtn: document.getElementById('defenderUziBtn'),
   repairBtn: document.getElementById('repairBtn'),
+  saveBtn: document.getElementById('saveBtn'),
+  loadBtn: document.getElementById('loadBtn'),
   overlay: document.getElementById('overlay'),
   overlayTitle: document.getElementById('overlayTitle'),
   overlayText: document.getElementById('overlayText'),
@@ -25,6 +27,8 @@ const guns = {
   pistol: { name: 'Pistol', damage: 20, cooldown: 330, defenderCooldown: 1250 },
   uzi: { name: 'Uzi', damage: 16, cooldown: 105, defenderCooldown: 520 }
 };
+
+const SAVE_KEY = 'hurstlocker-save-v1';
 
 const state = {
   baseMaxHp: 1000000,
@@ -49,6 +53,81 @@ const state = {
 function money(n) { return '$' + Math.floor(n).toLocaleString(); }
 function hp(n) { return Math.max(0, Math.floor(n)).toLocaleString(); }
 function rand(min, max) { return Math.random() * (max - min) + min; }
+
+function saveGame() {
+  try {
+    const payload = {
+      version: 1,
+      baseHp: state.baseHp,
+      money: state.money,
+      round: state.round,
+      totalKills: state.totalKills,
+      defenders: state.defenders,
+      playerGun: state.playerGun,
+      defenderGun: state.defenderGun,
+      gameOver: state.gameOver
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
+    state.status = 'Progress saved to this browser.';
+  } catch (error) {
+    state.status = 'Could not save progress.';
+  }
+  refreshUI();
+}
+
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) {
+      state.status = 'No saved game found.';
+      refreshUI();
+      return;
+    }
+
+    const data = JSON.parse(raw);
+    if (!data || data.version !== 1) {
+      state.status = 'Saved game is from an older format.';
+      refreshUI();
+      return;
+    }
+
+    state.baseHp = Math.max(0, Math.min(state.baseMaxHp, data.baseHp ?? state.baseMaxHp));
+    state.money = Math.max(0, data.money ?? 0);
+    state.round = Math.max(1, data.round ?? 1);
+    state.totalKills = Math.max(0, data.totalKills ?? 0);
+    state.defenders = Math.max(0, data.defenders ?? 0);
+    state.playerGun = data.playerGun === 'uzi' ? 'uzi' : 'pistol';
+    state.defenderGun = data.defenderGun === 'uzi' ? 'uzi' : 'pistol';
+    state.enemies = [];
+    state.bullets = [];
+    state.roundActive = false;
+    state.enemiesToSpawn = 0;
+    state.spawnTimer = 0;
+    state.lastPlayerShot = 0;
+    state.lastDefenderShot = 0;
+    state.gameOver = Boolean(data.gameOver);
+    state.status = data.gameOver ? 'Loaded your last game over state.' : 'Progress loaded from this browser.';
+
+    if (state.gameOver) {
+      showOverlay('Hurst Locker Has Fallen', `You reached round ${state.round} with ${state.totalKills} kills.`);
+    } else {
+      hideOverlay();
+    }
+  } catch (error) {
+    state.status = 'Could not load saved progress.';
+  }
+  refreshUI();
+}
+
+function showOverlay(title, text) {
+  ui.overlay.classList.remove('hidden');
+  ui.overlayTitle.textContent = title;
+  ui.overlayText.textContent = text;
+}
+
+function hideOverlay() {
+  ui.overlay.classList.add('hidden');
+}
 
 function startRound() {
   if (state.roundActive || state.gameOver) return;
@@ -231,9 +310,7 @@ function refreshUI() {
 
 function endGame() {
   state.gameOver = true;
-  ui.overlay.classList.remove('hidden');
-  ui.overlayTitle.textContent = 'Hurst Locker Has Fallen';
-  ui.overlayText.textContent = `You reached round ${state.round} with ${state.totalKills} kills. Kev says he had it under control.`;
+  showOverlay('Hurst Locker Has Fallen', `You reached round ${state.round} with ${state.totalKills} kills. Kev says he had it under control.`);
 }
 
 canvas.addEventListener('click', (ev) => {
@@ -246,6 +323,9 @@ canvas.addEventListener('click', (ev) => {
 });
 
 ui.startRoundBtn.addEventListener('click', startRound);
+ui.saveBtn.addEventListener('click', saveGame);
+ui.loadBtn.addEventListener('click', loadGame);
+window.addEventListener('beforeunload', saveGame);
 ui.hireBtn.addEventListener('click', () => {
   if (state.money >= 100) {
     state.money -= 100;
@@ -287,6 +367,19 @@ function loop(now) {
   update(dt);
   requestAnimationFrame(loop);
 }
-refreshUI();
+const hasSave = (() => {
+  try {
+    return Boolean(localStorage.getItem(SAVE_KEY));
+  } catch {
+    return false;
+  }
+})();
+
+if (hasSave) {
+  loadGame();
+} else {
+  refreshUI();
+}
+
 requestAnimationFrame(loop);
 requestAnimationFrame(draw);
