@@ -1,6 +1,6 @@
-# Hurst Locker 0.0.1 Beta
+# Hurst Locker 0.0.2 Beta
 
-A tiny first playable browser prototype for **Hurst Locker**: a funny stickman side-on tower-defense tycoon.
+A tiny playable browser prototype for **Hurst Locker**: a funny stickman side-on tower-defense tycoon.
 
 ## How to play
 
@@ -12,7 +12,7 @@ Open `index.html` in a browser.
 - Defender kills earn `$1`.
 - Survive rounds and upgrade.
 
-## Features in 0.0.1
+## Features in 0.0.2
 
 - Base with 1,000,000 HP
 - Stickman enemies from the right
@@ -25,6 +25,7 @@ Open `index.html` in a browser.
 - Defender Uzi upgrade
 - Base repair
 - Game over screen
+- Browser-based save/load using local storage
 
 ## GitHub Pages
 
@@ -37,5 +38,5 @@ Upload these files to a GitHub repo and enable Pages from the repo settings.
 - Named defenders and ranks
 - Boss rounds
 - Inside bunker view
-- Save/load
+- Clear save / reset progress
 - Mobile controls polish
