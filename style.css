@@ -67,6 +67,7 @@ canvas {
   left: 8px;
   right: 8px;
   z-index: 10;
+  pointer-events: none;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
   gap: 6px;
@@ -131,6 +132,9 @@ button.secondary {
 }
 button:hover { filter: brightness(0.9); }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
+.panel button {
+  pointer-events: auto;
+}
 .readout, .notes {
   margin-top: 12px;
   padding: 10px;
