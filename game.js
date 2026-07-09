@@ -22,7 +22,11 @@ const ui = {
   overlay: document.getElementById('overlay'),
   overlayTitle: document.getElementById('overlayTitle'),
   overlayText: document.getElementById('overlayText'),
-  restartBtn: document.getElementById('restartBtn')
+  restartBtn: document.getElementById('restartBtn'),
+  installBanner: document.getElementById('installBanner'),
+  installBtn: document.getElementById('installBtn'),
+  dismissInstallBtn: document.getElementById('dismissInstallBtn'),
+  orientationOverlay: document.getElementById('orientationOverlay')
 };
 
 const guns = {
@@ -62,6 +66,18 @@ const state = {
 function money(n) { return '$' + Math.floor(n).toLocaleString(); }
 function hp(n) { return Math.max(0, Math.floor(n)).toLocaleString(); }
 function rand(min, max) { return Math.random() * (max - min) + min; }
+
+function resizeCanvas() {
+  const wrap = document.getElementById('gameWrap');
+  const maxHeight = Math.max(240, window.innerHeight - 220);
+  const width = Math.min(wrap.clientWidth || 960, 1280);
+  const height = Math.min(maxHeight, Math.max(320, width * 0.52));
+  canvas.width = 1200;
+  canvas.height = 620;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+  wrap.style.maxHeight = `${height}px`;
+}
 
 function getCanvasPoint(ev) {
   const rect = canvas.getBoundingClientRect();
@@ -438,6 +454,8 @@ ui.cheatInput.addEventListener('keydown', (ev) => {
   }
 });
 window.addEventListener('beforeunload', saveGame);
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', resizeCanvas);
 ui.hireBtn.addEventListener('click', () => {
   if (state.money >= 100) {
     state.money -= 100;
@@ -474,6 +492,42 @@ ui.repairBtn.addEventListener('click', () => {
 });
 ui.restartBtn.addEventListener('click', () => location.reload());
 
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (ev) => {
+  ev.preventDefault();
+  deferredPrompt = ev;
+  if (window.matchMedia('(max-width: 900px)').matches) {
+    ui.installBanner.classList.remove('hidden');
+  }
+});
+
+ui.installBtn.addEventListener('click', async () => {
+  if (!deferredPrompt) {
+    ui.installBanner.classList.add('hidden');
+    return;
+  }
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  ui.installBanner.classList.add('hidden');
+});
+
+ui.dismissInstallBtn.addEventListener('click', () => {
+  ui.installBanner.classList.add('hidden');
+});
+
+function updateOrientationOverlay() {
+  if (window.matchMedia('(max-width: 900px)').matches && window.matchMedia('(orientation: portrait)').matches) {
+    ui.orientationOverlay.classList.remove('hidden');
+  } else {
+    ui.orientationOverlay.classList.add('hidden');
+  }
+}
+
+window.addEventListener('resize', updateOrientationOverlay);
+window.addEventListener('orientationchange', updateOrientationOverlay);
+
 let last = performance.now();
 function loop(now) {
   const dt = Math.min(0.05, (now - last) / 1000);
@@ -495,5 +549,7 @@ if (hasSave) {
   refreshUI();
 }
 
+resizeCanvas();
+updateOrientationOverlay();
 requestAnimationFrame(loop);
 requestAnimationFrame(draw);

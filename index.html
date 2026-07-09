@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Hurst Locker 0.0.3 Beta</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#151515" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="Hurst Locker is a fast little tower-defense prototype with save, load, and mobile-friendly play." />
+  <title>Hurst Locker 0.0.4 Beta</title>
+  <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -11,7 +16,7 @@
     <header class="topbar">
       <div>
         <h1>Hurst Locker</h1>
-        <p class="subtitle">0.0.3 Beta — defend the bunker, somehow.</p>
+        <p class="subtitle">0.0.4 Beta — defend the bunker, somehow.</p>
       </div>
       <div class="stats">
         <span>Round <b id="round">1</b></span>
@@ -62,6 +67,24 @@
         </div>
       </aside>
     </main>
+  </div>
+
+  <div id="installBanner" class="installBanner hidden">
+    <div>
+      <strong>Install Hurst Locker</strong>
+      <p>Use the full-screen app on your phone for a smoother experience.</p>
+    </div>
+    <div class="installActions">
+      <button id="installBtn" type="button">Install</button>
+      <button id="dismissInstallBtn" class="secondary" type="button">Later</button>
+    </div>
+  </div>
+
+  <div id="orientationOverlay" class="orientationOverlay hidden">
+    <div>
+      <h2>Rotate for mobile play</h2>
+      <p>Hurst Locker is best played in landscape mode on phones and tablets.</p>
+    </div>
   </div>
 
   <script src="game.js"></script>

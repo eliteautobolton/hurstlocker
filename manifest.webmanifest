@@ -1,0 +1,10 @@
+{
+  "name": "Hurst Locker",
+  "short_name": "HurstLocker",
+  "description": "A compact Hurst Locker tower-defense prototype",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#151515",
+  "theme_color": "#151515",
+  "icons": []
+}

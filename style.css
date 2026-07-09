@@ -1,47 +1,77 @@
 * { box-sizing: border-box; }
-body {
+html, body {
   margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
   font-family: Arial, Helvetica, sans-serif;
   background: #151515;
   color: #f5f5f5;
 }
-#app { min-height: 100vh; padding: 14px; }
+body {
+  min-height: 100dvh;
+}
+#app {
+  min-height: 100dvh;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 .topbar {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
 }
-h1 { margin: 0; font-size: 34px; letter-spacing: 1px; }
+h1 { margin: 0; font-size: 30px; letter-spacing: 1px; }
 .subtitle { margin: 4px 0 0; color: #c9c9c9; }
-.stats { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.stats { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .stats span {
   background: #242424;
   border: 1px solid #3a3a3a;
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 8px 10px;
+  font-size: 13px;
 }
-main { display: grid; grid-template-columns: 1fr 300px; gap: 14px; }
+main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
 #gameWrap {
   position: relative;
   border: 2px solid #3b3b3b;
   border-radius: 14px;
   overflow: hidden;
   background: #202020;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-canvas { width: 100%; height: auto; display: block; cursor: crosshair; }
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+  object-fit: contain;
+}
 .panel {
   background: #202020;
   border: 1px solid #3a3a3a;
   border-radius: 14px;
-  padding: 14px;
+  padding: 12px;
+  overflow: auto;
 }
 .panel h2 { margin-top: 0; }
 button {
   width: 100%;
   margin: 6px 0;
-  padding: 12px;
+  padding: 10px 12px;
   border: 0;
   border-radius: 10px;
   background: #f0f0f0;
@@ -49,7 +79,10 @@ button {
   font-weight: 700;
   cursor: pointer;
 }
-canvas { width: 100%; height: auto; display: block; cursor: crosshair; touch-action: none; }
+button.secondary {
+  background: #2c2c2c;
+  color: #f5f5f5;
+}
 .cheatBox {
   margin-top: 12px;
   padding: 10px;
@@ -83,8 +116,8 @@ canvas { width: 100%; height: auto; display: block; cursor: crosshair; touch-act
 button:hover { filter: brightness(0.9); }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
 .readout, .notes {
-  margin-top: 14px;
-  padding: 12px;
+  margin-top: 12px;
+  padding: 10px;
   border-radius: 10px;
   background: #151515;
   border: 1px solid #333;
@@ -100,8 +133,86 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   justify-content: center;
   text-align: center;
 }
+.installBanner {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(20, 20, 20, 0.95);
+  border: 1px solid #484848;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  z-index: 50;
+}
+.installBanner p { margin: 2px 0 0; color: #c9c9c9; font-size: 13px; }
+.installActions {
+  display: flex;
+  gap: 8px;
+}
+.installActions button {
+  width: auto;
+  min-width: 76px;
+  margin: 0;
+}
+.orientationOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5,5,5,0.9);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+.orientationOverlay h2 { margin-bottom: 8px; }
 .hidden { display: none !important; }
 @media (max-width: 900px) {
-  .topbar { align-items: flex-start; flex-direction: column; }
-  main { grid-template-columns: 1fr; }
+  #app { padding: 8px; gap: 8px; }
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  h1 { font-size: 22px; }
+  .stats span { padding: 6px 8px; font-size: 12px; }
+  main {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  #gameWrap { min-height: 0; }
+  .panel {
+    padding: 8px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .panel h2, .readout, .notes { display: none; }
+  .panel button {
+    margin: 0;
+    padding: 8px 6px;
+    font-size: 11px;
+    min-height: 38px;
+  }
+  .cheatBox {
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
+  .cheatRow { flex-direction: column; }
+  .cheatRow button { width: 100%; }
+  .installBanner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+@media (max-width: 900px) and (orientation: portrait) {
+  .orientationOverlay { display: flex; }
+}
+@media (min-width: 901px) {
+  .installBanner { display: none; }
 }
