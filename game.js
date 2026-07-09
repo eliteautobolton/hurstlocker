@@ -69,14 +69,13 @@ function rand(min, max) { return Math.random() * (max - min) + min; }
 
 function resizeCanvas() {
   const wrap = document.getElementById('gameWrap');
-  const maxHeight = Math.max(240, window.innerHeight - 220);
-  const width = Math.min(wrap.clientWidth || 960, 1280);
-  const height = Math.min(maxHeight, Math.max(320, width * 0.52));
+  const height = Math.max(320, window.innerHeight - 112);
+  wrap.style.height = `${height}px`;
+  wrap.style.maxHeight = `${height}px`;
   canvas.width = 1200;
   canvas.height = 620;
-  canvas.style.width = `${width}px`;
-  canvas.style.height = `${height}px`;
-  wrap.style.maxHeight = `${height}px`;
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
 }
 
 function getCanvasPoint(ev) {
@@ -88,18 +87,31 @@ function getCanvasPoint(ev) {
 }
 
 function getEnemyAtPoint(x, y) {
-  return state.enemies.find(e => Math.hypot(e.x - x, e.y - y) < 38) || null;
+  return state.enemies.find(e => Math.hypot(e.x - x, e.y - y) < 50) || null;
 }
 
-function firePlayerShot(target, burst = false) {
-  if (!target || state.gameOver) return;
+function shootPlayerBullet(x, y, ignoreCooldown = false) {
+  const target = getEnemyAtPoint(x, y);
+  if (target) {
+    shootEnemy(target, 'player', ignoreCooldown);
+  }
+  state.bullets.push({ x: 100, y: 310, tx: x, ty: y, life: 0.12 });
+}
+
+function firePlayerShot(x, y, burst = false) {
+  if (state.gameOver) return;
+  const gun = guns[state.playerGun];
   if (state.playerGun === 'uzi' && burst) {
     for (let i = 0; i < 3; i++) {
-      shootEnemy(target, 'player', true);
+      shootPlayerBullet(x, y, true);
     }
+    state.lastPlayerShot = performance.now();
     return;
   }
-  shootEnemy(target, 'player');
+  const now = performance.now();
+  if (now - state.lastPlayerShot < gun.cooldown) return;
+  state.lastPlayerShot = now;
+  shootPlayerBullet(x, y);
 }
 
 function saveGame() {
@@ -282,11 +294,11 @@ function update(dt) {
   state.bullets.forEach(b => b.life -= dt);
   state.bullets = state.bullets.filter(b => b.life > 0);
 
-  if (state.playerHoldingFire && state.pointerTarget && state.pointerTarget.alive) {
+  if (state.playerHoldingFire) {
     const now = performance.now();
     const cooldown = guns[state.playerGun].cooldown;
     if (now - state.lastPlayerShot >= cooldown) {
-      firePlayerShot(state.pointerTarget);
+      firePlayerShot(state.pointerX, state.pointerY);
     }
   }
 
@@ -406,9 +418,9 @@ function handlePointerDown(ev) {
   const point = getCanvasPoint(ev);
   state.pointerX = point.x;
   state.pointerY = point.y;
-  state.pointerTarget = getEnemyAtPoint(point.x, point.y);
   state.pointerDownTime = performance.now();
   state.playerHoldingFire = true;
+  firePlayerShot(point.x, point.y);
 }
 
 function handlePointerUp(ev) {
@@ -416,10 +428,9 @@ function handlePointerUp(ev) {
   const point = getCanvasPoint(ev);
   state.pointerX = point.x;
   state.pointerY = point.y;
-  state.pointerTarget = getEnemyAtPoint(point.x, point.y);
   const heldLongEnough = performance.now() - state.pointerDownTime > 180;
   if (!heldLongEnough) {
-    firePlayerShot(state.pointerTarget, state.playerGun === 'uzi');
+    firePlayerShot(point.x, point.y, state.playerGun === 'uzi');
   }
   state.playerHoldingFire = false;
 }

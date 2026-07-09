@@ -1,4 +1,4 @@
-# Hurst Locker 0.0.4 Beta
+# Hurst Locker 0.0.5 Beta
 
 A tiny playable browser prototype for **Hurst Locker**: a funny stickman side-on tower-defense tycoon.
 
@@ -12,11 +12,12 @@ Open `index.html` in a browser.
 - Defender kills earn `$1`.
 - Survive rounds and upgrade.
 
-## Features in 0.0.4
+## Features in 0.0.5
 
 - Base with 1,000,000 HP
 - Stickman enemies from the right
-- Hold-to-fire or tap-to-shoot controls for desktop and mobile
+- Free shooting anywhere with touch/mouse controls
+- Hold-to-fire or tap-to-shoot on desktop and mobile
 - Defenders target random enemies and keep firing until their target is down
 - Rapid auto-fire Uzi while holding, plus 3-shot burst on tap/click
 - Cheat box with early Uzi unlock via the code "uzi"
@@ -31,7 +32,7 @@ Open `index.html` in a browser.
 - Browser-based save/load using local storage
 - Mobile-friendly, landscape-only layout for phones and tablets
 - Install prompt for home-screen/full-screen play
-- Compact bottom control strip for smaller screens
+- Full-screen mobile fit with no top header and compact bottom controls
 
 ## GitHub Pages
 
