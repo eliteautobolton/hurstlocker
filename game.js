@@ -17,6 +17,8 @@ const ui = {
   repairBtn: document.getElementById('repairBtn'),
   saveBtn: document.getElementById('saveBtn'),
   loadBtn: document.getElementById('loadBtn'),
+  cheatInput: document.getElementById('cheatInput'),
+  cheatBtn: document.getElementById('cheatBtn'),
   overlay: document.getElementById('overlay'),
   overlayTitle: document.getElementById('overlayTitle'),
   overlayText: document.getElementById('overlayText'),
@@ -45,14 +47,44 @@ const state = {
   enemiesToSpawn: 0,
   spawnTimer: 0,
   lastPlayerShot: 0,
-  lastDefenderShot: 0,
+  defenderShotTimers: [],
+  defenderTargets: [],
+  playerHoldingFire: false,
+  pointerDownTime: 0,
+  pointerX: 0,
+  pointerY: 0,
+  pointerTarget: null,
   gameOver: false,
-  status: 'Click enemies to shoot. Survive round 1.'
+  cheats: { uzi: false },
+  status: 'Hold to auto-fire or tap to shoot. Survive round 1.'
 };
 
 function money(n) { return '$' + Math.floor(n).toLocaleString(); }
 function hp(n) { return Math.max(0, Math.floor(n)).toLocaleString(); }
 function rand(min, max) { return Math.random() * (max - min) + min; }
+
+function getCanvasPoint(ev) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (ev.clientX - rect.left) * (canvas.width / rect.width),
+    y: (ev.clientY - rect.top) * (canvas.height / rect.height)
+  };
+}
+
+function getEnemyAtPoint(x, y) {
+  return state.enemies.find(e => Math.hypot(e.x - x, e.y - y) < 38) || null;
+}
+
+function firePlayerShot(target, burst = false) {
+  if (!target || state.gameOver) return;
+  if (state.playerGun === 'uzi' && burst) {
+    for (let i = 0; i < 3; i++) {
+      shootEnemy(target, 'player', true);
+    }
+    return;
+  }
+  shootEnemy(target, 'player');
+}
 
 function saveGame() {
   try {
@@ -65,6 +97,7 @@ function saveGame() {
       defenders: state.defenders,
       playerGun: state.playerGun,
       defenderGun: state.defenderGun,
+      cheats: state.cheats,
       gameOver: state.gameOver
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
@@ -98,13 +131,17 @@ function loadGame() {
     state.defenders = Math.max(0, data.defenders ?? 0);
     state.playerGun = data.playerGun === 'uzi' ? 'uzi' : 'pistol';
     state.defenderGun = data.defenderGun === 'uzi' ? 'uzi' : 'pistol';
+    state.cheats = { uzi: Boolean(data.cheats?.uzi) };
+    if (state.cheats.uzi) state.playerGun = 'uzi';
     state.enemies = [];
     state.bullets = [];
     state.roundActive = false;
     state.enemiesToSpawn = 0;
     state.spawnTimer = 0;
     state.lastPlayerShot = 0;
-    state.lastDefenderShot = 0;
+    state.defenderShotTimers = Array.from({ length: state.defenders }, () => 0);
+    state.defenderTargets = Array.from({ length: state.defenders }, () => null);
+    state.pointerTarget = null;
     state.gameOver = Boolean(data.gameOver);
     state.status = data.gameOver ? 'Loaded your last game over state.' : 'Progress loaded from this browser.';
 
@@ -153,15 +190,14 @@ function spawnEnemy() {
   });
 }
 
-function shootEnemy(enemy, source) {
+function shootEnemy(enemy, source, ignoreCooldown = false, defenderIndex = 0) {
   const now = performance.now();
-  const gun = guns[state.playerGun];
-  if (source === 'player' && now - state.lastPlayerShot < gun.cooldown) return;
+  const usedGun = source === 'player' ? guns[state.playerGun] : guns[state.defenderGun];
+  if (source === 'player' && !ignoreCooldown && now - state.lastPlayerShot < usedGun.cooldown) return false;
   if (source === 'player') state.lastPlayerShot = now;
 
   const startX = source === 'player' ? 100 : 135;
-  const startY = source === 'player' ? 310 : 160 + (state.defenders % 7) * 38;
-  const usedGun = source === 'player' ? guns[state.playerGun] : guns[state.defenderGun];
+  const startY = source === 'player' ? 310 : 160 + (defenderIndex % 7) * 38;
 
   state.bullets.push({ x: startX, y: startY, tx: enemy.x, ty: enemy.y, life: 0.12 });
   enemy.hp -= usedGun.damage;
@@ -171,18 +207,37 @@ function shootEnemy(enemy, source) {
     state.money += source === 'player' ? 10 : 1;
     state.status = source === 'player' ? '+$10. Nice shot.' : '+$1. Defender did something useful.';
   }
+  return true;
 }
 
 function defenderThink(dt) {
   if (state.defenders <= 0 || state.enemies.length === 0) return;
-  state.lastDefenderShot += dt * 1000;
-  const cooldown = guns[state.defenderGun].defenderCooldown / Math.max(1, Math.sqrt(state.defenders));
-  if (state.lastDefenderShot < cooldown) return;
-  const target = state.enemies.filter(e => e.alive).sort((a, b) => a.x - b.x)[0];
-  if (target) {
-    state.lastDefenderShot = 0;
-    shootEnemy(target, 'defender');
+
+  while (state.defenderShotTimers.length < state.defenders) {
+    state.defenderShotTimers.push(0);
+    state.defenderTargets.push(null);
   }
+
+  const aliveEnemies = state.enemies.filter(e => e.alive);
+  if (aliveEnemies.length === 0) return;
+
+  state.defenderShotTimers.forEach((timer, index) => {
+    const cooldown = guns[state.defenderGun].defenderCooldown / Math.max(1, Math.sqrt(state.defenders));
+    const nextTimer = timer + dt * 1000;
+    state.defenderShotTimers[index] = nextTimer;
+    if (nextTimer < cooldown) return;
+
+    let target = state.defenderTargets[index];
+    if (!target || !target.alive) {
+      target = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+      state.defenderTargets[index] = target;
+    }
+
+    if (target) {
+      state.defenderShotTimers[index] = 0;
+      shootEnemy(target, 'defender', false, index);
+    }
+  });
 }
 
 function update(dt) {
@@ -210,6 +265,15 @@ function update(dt) {
   state.enemies = state.enemies.filter(e => e.alive);
   state.bullets.forEach(b => b.life -= dt);
   state.bullets = state.bullets.filter(b => b.life > 0);
+
+  if (state.playerHoldingFire && state.pointerTarget && state.pointerTarget.alive) {
+    const now = performance.now();
+    const cooldown = guns[state.playerGun].cooldown;
+    if (now - state.lastPlayerShot >= cooldown) {
+      firePlayerShot(state.pointerTarget);
+    }
+  }
+
   defenderThink(dt);
 
   if (state.roundActive && state.enemiesToSpawn <= 0 && state.enemies.length === 0) {
@@ -313,23 +377,73 @@ function endGame() {
   showOverlay('Hurst Locker Has Fallen', `You reached round ${state.round} with ${state.totalKills} kills. Kev says he had it under control.`);
 }
 
-canvas.addEventListener('click', (ev) => {
+function handlePointerMove(ev) {
+  const point = getCanvasPoint(ev);
+  state.pointerX = point.x;
+  state.pointerY = point.y;
+  state.pointerTarget = getEnemyAtPoint(point.x, point.y);
+}
+
+function handlePointerDown(ev) {
   if (state.gameOver) return;
-  const rect = canvas.getBoundingClientRect();
-  const x = (ev.clientX - rect.left) * (canvas.width / rect.width);
-  const y = (ev.clientY - rect.top) * (canvas.height / rect.height);
-  const hit = state.enemies.find(e => Math.hypot(e.x - x, e.y - y) < 38);
-  if (hit) shootEnemy(hit, 'player');
-});
+  ev.preventDefault();
+  const point = getCanvasPoint(ev);
+  state.pointerX = point.x;
+  state.pointerY = point.y;
+  state.pointerTarget = getEnemyAtPoint(point.x, point.y);
+  state.pointerDownTime = performance.now();
+  state.playerHoldingFire = true;
+}
+
+function handlePointerUp(ev) {
+  if (state.gameOver) return;
+  const point = getCanvasPoint(ev);
+  state.pointerX = point.x;
+  state.pointerY = point.y;
+  state.pointerTarget = getEnemyAtPoint(point.x, point.y);
+  const heldLongEnough = performance.now() - state.pointerDownTime > 180;
+  if (!heldLongEnough) {
+    firePlayerShot(state.pointerTarget, state.playerGun === 'uzi');
+  }
+  state.playerHoldingFire = false;
+}
+
+function applyCheatCode() {
+  const code = ui.cheatInput.value.trim().toLowerCase();
+  if (code === 'uzi') {
+    state.cheats.uzi = true;
+    state.playerGun = 'uzi';
+    state.status = 'Cheat activated: Uzi unlocked.';
+  } else {
+    state.status = 'Cheat code not recognised.';
+  }
+  ui.cheatInput.value = '';
+  refreshUI();
+}
+
+canvas.addEventListener('pointermove', handlePointerMove);
+canvas.addEventListener('pointerdown', handlePointerDown);
+canvas.addEventListener('pointerup', handlePointerUp);
+canvas.addEventListener('pointerleave', handlePointerUp);
+canvas.addEventListener('pointercancel', handlePointerUp);
 
 ui.startRoundBtn.addEventListener('click', startRound);
 ui.saveBtn.addEventListener('click', saveGame);
 ui.loadBtn.addEventListener('click', loadGame);
+ui.cheatBtn.addEventListener('click', applyCheatCode);
+ui.cheatInput.addEventListener('keydown', (ev) => {
+  if (ev.key === 'Enter') {
+    ev.preventDefault();
+    applyCheatCode();
+  }
+});
 window.addEventListener('beforeunload', saveGame);
 ui.hireBtn.addEventListener('click', () => {
   if (state.money >= 100) {
     state.money -= 100;
     state.defenders++;
+    state.defenderShotTimers.push(0);
+    state.defenderTargets.push(null);
     state.status = `Defender hired. Welcome aboard, Dave ${state.defenders}. Try not to lick the ammo.`;
     refreshUI();
   }
