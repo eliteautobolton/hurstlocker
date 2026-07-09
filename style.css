@@ -177,14 +177,17 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   #app { padding: 0 8px 0; gap: 0; }
   .topbar { display: none; }
   main {
+    position: relative;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
     min-height: 100dvh;
   }
   #gameWrap {
-    height: calc(100dvh - 112px);
-    max-height: calc(100dvh - 112px);
-    margin-top: 112px;
+    position: absolute;
+    top: 110px;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: flex;
     align-items: center;
     justify-content: center;
