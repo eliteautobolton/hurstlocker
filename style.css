@@ -174,19 +174,20 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .hidden { display: none !important; }
 @media (max-width: 900px) {
   html, body { overflow: hidden; }
-  #app { padding: 0 8px 150px; gap: 8px; }
+  #app { padding: 0 8px 0; gap: 0; }
   .topbar { display: none; }
   h1 { font-size: 20px; }
   .stats { gap: 6px; }
   .stats span { padding: 6px 8px; font-size: 11px; }
   main {
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr auto;
-    min-height: calc(100dvh - 150px);
+    grid-template-rows: 1fr;
+    min-height: 100dvh;
   }
   #gameWrap {
-    height: calc(100dvh - 150px);
-    max-height: calc(100dvh - 150px);
+    height: calc(100dvh - 112px);
+    max-height: calc(100dvh - 112px);
+    margin-bottom: 0;
   }
   .panel {
     position: fixed;
@@ -201,7 +202,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
     border-radius: 0;
     background: rgba(20, 20, 20, 0.96);
     border-top: 1px solid #3a3a3a;
-    max-height: 150px;
+    max-height: 112px;
     overflow-y: auto;
   }
   .panel h2,
