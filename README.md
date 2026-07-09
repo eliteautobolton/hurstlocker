@@ -1,4 +1,4 @@
-# Hurst Locker 0.0.5 Beta
+# Hurst Locker 0.0.6 Beta
 
 A tiny playable browser prototype for **Hurst Locker**: a funny stickman side-on tower-defense tycoon.
 
@@ -32,7 +32,7 @@ Open `index.html` in a browser.
 - Browser-based save/load using local storage
 - Mobile-friendly, landscape-only layout for phones and tablets
 - Install prompt for home-screen/full-screen play
-- Full-screen mobile fit with no top header and compact bottom controls
+- Full-screen mobile fit with sticky top controls and true phone-height scaling
 
 ## GitHub Pages
 

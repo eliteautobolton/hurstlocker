@@ -174,20 +174,18 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .hidden { display: none !important; }
 @media (max-width: 900px) {
   html, body { overflow: hidden; }
-  #app { padding: 0 8px 0; gap: 0; }
+  #app { padding: 0 8px 0; gap: 0; min-height: 100dvh; }
   .topbar { display: none; }
   main {
-    position: relative;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
+    display: flex;
+    flex-direction: column;
     min-height: 100dvh;
+    height: 100dvh;
+    overflow: hidden;
   }
   #gameWrap {
-    position: absolute;
-    top: 110px;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    flex: 1;
+    min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -197,11 +195,10 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
     height: 100%;
   }
   .panel {
-    position: fixed;
+    position: sticky;
+    top: 0;
     left: 0;
     right: 0;
-    top: 0;
-    bottom: auto;
     z-index: 20;
     padding: 8px;
     display: grid;

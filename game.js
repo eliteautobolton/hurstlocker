@@ -87,7 +87,7 @@ function getCanvasPoint(ev) {
 }
 
 function getEnemyAtPoint(x, y) {
-  return state.enemies.find(e => Math.hypot(e.x - x, e.y - y) < 50) || null;
+  return state.enemies.find(e => Math.hypot(e.x - x, e.y - y) < 70) || null;
 }
 
 function shootPlayerBullet(x, y, ignoreCooldown = false) {
