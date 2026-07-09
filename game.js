@@ -86,6 +86,11 @@ function getCanvasPoint(ev) {
   };
 }
 
+function getEventPoint(ev) {
+  const source = (ev.touches && ev.touches[0]) || (ev.changedTouches && ev.changedTouches[0]) || ev;
+  return getCanvasPoint(source);
+}
+
 function getEnemyAtPoint(x, y) {
   return state.enemies.find(e => Math.hypot(e.x - x, e.y - y) < 70) || null;
 }
@@ -406,7 +411,7 @@ function endGame() {
 }
 
 function handlePointerMove(ev) {
-  const point = getCanvasPoint(ev);
+  const point = getEventPoint(ev);
   state.pointerX = point.x;
   state.pointerY = point.y;
   state.pointerTarget = getEnemyAtPoint(point.x, point.y);
@@ -414,8 +419,8 @@ function handlePointerMove(ev) {
 
 function handlePointerDown(ev) {
   if (state.gameOver) return;
-  ev.preventDefault();
-  const point = getCanvasPoint(ev);
+  ev.preventDefault?.();
+  const point = getEventPoint(ev);
   state.pointerX = point.x;
   state.pointerY = point.y;
   state.pointerDownTime = performance.now();
@@ -425,7 +430,7 @@ function handlePointerDown(ev) {
 
 function handlePointerUp(ev) {
   if (state.gameOver) return;
-  const point = getCanvasPoint(ev);
+  const point = getEventPoint(ev);
   state.pointerX = point.x;
   state.pointerY = point.y;
   const heldLongEnough = performance.now() - state.pointerDownTime > 180;
@@ -453,6 +458,13 @@ canvas.addEventListener('pointerdown', handlePointerDown);
 canvas.addEventListener('pointerup', handlePointerUp);
 canvas.addEventListener('pointerleave', handlePointerUp);
 canvas.addEventListener('pointercancel', handlePointerUp);
+window.addEventListener('mousedown', handlePointerDown);
+window.addEventListener('mousemove', handlePointerMove);
+window.addEventListener('mouseup', handlePointerUp);
+window.addEventListener('touchstart', handlePointerDown, { passive: false });
+window.addEventListener('touchmove', handlePointerMove, { passive: false });
+window.addEventListener('touchend', handlePointerUp, { passive: false });
+window.addEventListener('touchcancel', handlePointerUp, { passive: false });
 
 ui.startRoundBtn.addEventListener('click', startRound);
 ui.saveBtn.addEventListener('click', saveGame);
