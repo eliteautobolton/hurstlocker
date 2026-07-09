@@ -174,12 +174,8 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .hidden { display: none !important; }
 @media (max-width: 900px) {
   html, body { overflow: hidden; }
-  #app { padding: 8px 8px 150px; gap: 8px; }
-  .topbar {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 6px;
-  }
+  #app { padding: 0 8px 150px; gap: 8px; }
+  .topbar { display: none; }
   h1 { font-size: 20px; }
   .stats { gap: 6px; }
   .stats span { padding: 6px 8px; font-size: 11px; }
