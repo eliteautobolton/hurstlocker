@@ -35,8 +35,8 @@ h1 { margin: 0; font-size: 30px; letter-spacing: 1px; }
   font-size: 13px;
 }
 main {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
   flex: 1;
   min-height: 0;
@@ -48,6 +48,7 @@ main {
   overflow: hidden;
   background: #202020;
   min-height: 0;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -61,23 +62,38 @@ canvas {
   object-fit: contain;
 }
 .panel {
-  background: #202020;
-  border: 1px solid #3a3a3a;
-  border-radius: 14px;
-  padding: 12px;
-  overflow: auto;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+  gap: 6px;
+  padding: 8px;
+  border-radius: 12px;
+  background: rgba(20, 20, 20, 0.9);
+  border: 1px solid rgba(80, 80, 80, 0.75);
+  backdrop-filter: blur(4px);
 }
 .panel h2 { margin-top: 0; }
+.compactPanel .cheatBox,
+.compactPanel .readout,
+.compactPanel .notes {
+  display: none;
+}
 button {
   width: 100%;
-  margin: 6px 0;
-  padding: 10px 12px;
+  margin: 0;
+  padding: 8px 10px;
   border: 0;
   border-radius: 10px;
   background: #f0f0f0;
   color: #101010;
   font-weight: 700;
   cursor: pointer;
+  font-size: 11px;
+  line-height: 1.2;
 }
 button.secondary {
   background: #2c2c2c;
@@ -132,6 +148,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   align-items: center;
   justify-content: center;
   text-align: center;
+  z-index: 20;
 }
 .installBanner {
   position: fixed;
@@ -195,20 +212,13 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
     height: 100%;
   }
   .panel {
-    position: sticky;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 20;
-    padding: 8px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 6px;
-    border-radius: 0;
-    background: rgba(20, 20, 20, 0.96);
-    border-bottom: 1px solid #3a3a3a;
-    max-height: 110px;
-    overflow-y: auto;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    padding: 6px;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    gap: 5px;
+    border-radius: 10px;
   }
   .panel h2,
   .cheatBox,
@@ -217,10 +227,9 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
     display: none;
   }
   .panel button {
-    margin: 0;
-    padding: 10px 8px;
-    font-size: 12px;
-    min-height: 40px;
+    padding: 6px 6px;
+    font-size: 10px;
+    min-height: 30px;
   }
   .installBanner {
     left: 8px;

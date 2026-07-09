@@ -30,43 +30,36 @@
     <main>
       <section id="gameWrap">
         <canvas id="game" width="1200" height="620"></canvas>
+        <div class="panel compactPanel">
+          <button id="startRoundBtn">Start Round</button>
+          <button id="hireBtn">Hire — $100</button>
+          <button id="playerUziBtn">Uzi — $500 / 200 kills</button>
+          <button id="defenderUziBtn">Def Uzi — $750</button>
+          <button id="repairBtn">Repair — $250</button>
+          <button id="saveBtn">Save</button>
+          <button id="loadBtn">Load</button>
+
+          <div class="cheatBox">
+            <label for="cheatInput">Cheat code</label>
+            <div class="cheatRow">
+              <input id="cheatInput" type="text" placeholder="Type a cheat" />
+              <button id="cheatBtn" type="button">Apply</button>
+            </div>
+          </div>
+
+          <div class="readout">
+            <p><b>Your gun:</b> <span id="playerGun">Pistol</span></p>
+            <p><b>Defenders:</b> <span id="defenders">0</span></p>
+            <p><b>Defender gun:</b> <span id="defenderGun">Pistol</span></p>
+            <p><b>Status:</b> <span id="status">Click enemies to shoot. Survive round 1.</span></p>
+          </div>
+        </div>
         <div id="overlay" class="hidden">
           <h2 id="overlayTitle">Game Over</h2>
           <p id="overlayText">Hurst Locker has been overrun.</p>
           <button id="restartBtn">Restart</button>
         </div>
       </section>
-
-      <aside class="panel">
-        <h2>Command Room</h2>
-        <button id="startRoundBtn">Start Round</button>
-        <button id="hireBtn">Hire Defender — $100</button>
-        <button id="playerUziBtn">Unlock Uzi — $500 / 200 kills</button>
-        <button id="defenderUziBtn">Upgrade Defenders to Uzi — $750</button>
-        <button id="repairBtn">Repair Base +10,000 HP — $250</button>
-        <button id="saveBtn">Save Progress</button>
-        <button id="loadBtn">Load Progress</button>
-
-        <div class="cheatBox">
-          <label for="cheatInput">Cheat code</label>
-          <div class="cheatRow">
-            <input id="cheatInput" type="text" placeholder="Type a cheat" />
-            <button id="cheatBtn" type="button">Apply</button>
-          </div>
-        </div>
-
-        <div class="readout">
-          <p><b>Your gun:</b> <span id="playerGun">Pistol</span></p>
-          <p><b>Defenders:</b> <span id="defenders">0</span></p>
-          <p><b>Defender gun:</b> <span id="defenderGun">Pistol</span></p>
-          <p><b>Status:</b> <span id="status">Click enemies to shoot. Survive round 1.</span></p>
-        </div>
-
-        <div class="notes">
-          <h3>Beta notes</h3>
-          <p>Your kills pay $10. Defender kills pay $1. Enemies get tougher every round. This is the first playable skeleton.</p>
-        </div>
-      </aside>
     </main>
   </div>
 
